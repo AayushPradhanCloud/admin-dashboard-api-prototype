@@ -1,0 +1,18 @@
+sequenceDiagram
+  participant H as CommandHandler
+  participant Tx as prisma.$transaction
+  participant DB as Postgres
+  participant D as OutboxDispatcher
+  participant N as NATS JetStream
+  participant S as Subscriber
+
+  H->>Tx: begin
+  Tx->>DB: business row
+  Tx->>DB: outbox_events row
+  Tx-->>H: commit
+  Note over H: respond to client (fast)
+  D->>DB: SELECT publishedAt IS NULL
+  D->>N: publish(CloudEvent)
+  D->>DB: UPDATE publishedAt
+  N-->>S: at-least-once
+  S->>S: idempotent handler

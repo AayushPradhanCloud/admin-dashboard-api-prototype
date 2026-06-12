@@ -1,0 +1,24 @@
+sequenceDiagram
+  autonumber
+  participant C as Client
+  participant MW as CorrelationIdMiddleware
+  participant G as JwtAuthGuard + RolesGuard
+  participant Ctrl as Controller
+  participant Cmd as CommandBus
+  participant H as CommandHandler
+  participant D as Domain
+  participant R as PrismaRepository
+  participant P as NatsEventPublisher
+  participant I as ResponseInterceptor
+
+  C->>MW: HTTP
+  MW->>G: + x-correlation-id
+  G->>Ctrl: req.user (JWT verified)
+  Ctrl->>Cmd: execute(Command)
+  Cmd->>H: handle
+  H->>D: aggregate.create()
+  H->>R: save
+  H->>P: publishAll(events)
+  H-->>Ctrl: result
+  Ctrl-->>I: payload
+  I-->>C: {success, data, message, meta}

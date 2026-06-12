@@ -1,0 +1,35 @@
+// Example bounded context: replace with your own aggregate(s).
+
+model Resource {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @db.VarChar(120)
+  description String?
+  active      Boolean   @default(true)
+
+  // Audit + soft delete (populated by Prisma client extension; see PrismaService).
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+
+  @@index([name])
+  @@index([deletedAt])
+  @@map("resources")
+}
+
+// Transactional outbox — write business state + outbox row in the same Prisma
+// transaction; a scheduled dispatcher publishes pending rows to NATS.
+model OutboxEvent {
+  id            String    @id @default(uuid()) @db.Uuid
+  eventType     String    @map("event_type")
+  payload       Json
+  correlationId String?   @map("correlation_id")
+  occurredAt    DateTime  @default(now()) @map("occurred_at")
+  publishedAt   DateTime? @map("published_at")
+  attempts      Int       @default(0)
+  lastError     String?   @map("last_error")
+
+  @@index([publishedAt])
+  @@map("outbox_events")
+}

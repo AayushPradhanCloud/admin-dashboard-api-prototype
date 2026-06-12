@@ -1,0 +1,7 @@
+node_modules
+dist
+coverage
+prisma/migrations
+openapi.json
+postman-collection.json
+docs/diagrams/*.svg

@@ -1,0 +1,13 @@
+// Multi-file Prisma schema. Files share `generator` + `datasource` via Prisma's
+// folder-mode (Prisma 5.15+). Run all schema files together:
+//   pnpm prisma:generate / pnpm prisma:migrate
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

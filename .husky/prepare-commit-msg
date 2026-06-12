@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+# Auto-prefix commit message with the branch name (e.g. NUE-123).
+# Skip for merge/squash/amend commits.
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+
+if [ -n "$COMMIT_SOURCE" ]; then
+  exit 0
+fi
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+PREFIX=$(echo "$BRANCH" | grep -Eo '^[A-Z]+-[0-9]+' || true)
+
+if [ -n "$PREFIX" ]; then
+  CURRENT=$(cat "$COMMIT_MSG_FILE")
+  case "$CURRENT" in
+    *"$PREFIX"*) ;;
+    *) printf "%s\n\n%s" "$PREFIX" "$CURRENT" > "$COMMIT_MSG_FILE" ;;
+  esac
+fi

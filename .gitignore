@@ -1,0 +1,49 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build
+dist/
+build/
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# coverage / test
+coverage/
+.nyc_output/
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# prisma
+prisma/migrations/dev.db*
+
+# generated artifacts
+openapi.json
+postman-collection.json
+asyncapi.json
+docs/diagrams/*.svg
+
+# cdk
+infra/cdk/cdk.out/
+infra/cdk/node_modules/
+
+# sentry / vendor
+.sentryclirc
+
+graphify-out/

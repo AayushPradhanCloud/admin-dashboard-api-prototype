@@ -1,0 +1,14 @@
+flowchart TB
+  subgraph Local[Local Docker Compose - primary path]
+    api[backend-api container] --- pg[(Postgres)]
+    api --- nats[NATS JetStream]
+    api --- kc[Keycloak]
+    api --- redis[(Redis)]
+  end
+  subgraph AWS[AWS - minimal CDK skeleton]
+    gw[HTTP API v2] --> auth[Lambda Authorizer<br/>Keycloak JWT]
+    auth --> fn[Lambda: serverless-express]
+    fn --> rds[(RDS Postgres)]
+    fn --> natsCloud[(NATS cluster)]
+  end
+  Local -. same AppModule, different entrypoint .-> AWS

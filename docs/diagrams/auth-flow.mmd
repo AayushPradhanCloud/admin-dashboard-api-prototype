@@ -1,0 +1,13 @@
+sequenceDiagram
+  participant B as Browser (frontend-web)
+  participant KC as Keycloak hosted login
+  participant API as nest-api
+  participant JWKS as Keycloak JWKS
+
+  B->>KC: redirect (Auth Code + PKCE)
+  KC-->>B: code → token (id+access+refresh)
+  B->>API: Authorization: Bearer <jwt>
+  API->>JWKS: fetch keys (cached)
+  API->>API: jose.jwtVerify(token)
+  API-->>B: 200 {success, data}
+  Note over API: service-to-service uses<br/>client_credentials with each<br/>service's own client id/secret

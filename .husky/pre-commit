@@ -1,0 +1,11 @@
+# Run lint-staged (ESLint + Prettier on staged files)
+pnpm exec lint-staged
+
+# Secret scan — fails commit if any secret detected.
+# Requires gitleaks installed locally (https://github.com/gitleaks/gitleaks).
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --verbose
+else
+  echo "[husky] gitleaks not installed — skipping secret scan."
+  echo "        Install: https://github.com/gitleaks/gitleaks#installing"
+fi

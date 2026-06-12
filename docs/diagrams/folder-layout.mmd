@@ -1,0 +1,12 @@
+graph TD
+  src --> core
+  src --> adapters
+  src --> common
+  src --> infrastructure
+  core --> domain[domain<br/>entities · VOs · events]
+  core --> application[application<br/>ports · use cases]
+  adapters --> driving[driving/http<br/>controllers · DTOs]
+  adapters --> driven[driven<br/>Prisma · NATS · Legacy]
+  infrastructure --> cfg[config<br/>Zod env]
+  infrastructure --> modules[feature modules]
+  infrastructure --> main[main.ts / lambda.ts]

@@ -1,0 +1,22 @@
+erDiagram
+  RESOURCE {
+    uuid id PK
+    string name
+    string description
+    boolean active
+    timestamp createdAt
+    timestamp updatedAt
+    timestamp deletedAt
+    string createdBy
+    string updatedBy
+  }
+  OUTBOX_EVENT {
+    uuid id PK
+    string eventType
+    json payload
+    string correlationId
+    timestamp occurredAt
+    timestamp publishedAt
+    int attempts
+    string lastError
+  }

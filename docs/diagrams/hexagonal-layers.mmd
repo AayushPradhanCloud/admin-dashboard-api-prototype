@@ -1,0 +1,29 @@
+%% Hexagonal layers and the dependency rule
+flowchart LR
+  subgraph infra[infrastructure]
+    main[main.ts / lambda.ts]
+    cfg[config (Zod)]
+    appmod[AppModule]
+  end
+  subgraph adapt[adapters]
+    drv[driving/http<br/>controllers · DTOs · Swagger]
+    drvn[driven<br/>Prisma · NATS · Legacy ACL]
+  end
+  subgraph appl[application]
+    ports[ports<br/>repository · event · gateway]
+    uc[use cases<br/>commands · queries · handlers]
+  end
+  subgraph dom[domain]
+    ent[entities · value objects]
+    ev[domain events]
+    inv[invariants]
+  end
+
+  infra --> adapt
+  drv --> uc
+  drvn -. implements .-> ports
+  uc --> ports
+  uc --> dom
+
+  classDef inner fill:#dbeafe,stroke:#1d4ed8;
+  class dom inner;

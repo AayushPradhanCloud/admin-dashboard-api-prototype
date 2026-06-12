@@ -1,0 +1,22 @@
+%% System Context (C4 Level 1)
+graph TB
+  user([Admin User])
+  subgraph nest[nest Platform]
+    web[frontend-web<br/>React SPA]
+    api[backend-api<br/>NestJS service]
+    db[(PostgreSQL)]
+    bus{{NATS JetStream}}
+    kc[Keycloak SSO]
+    cache[(Redis)]
+  end
+  legacy[(Legacy Laravel services<br/>corenroll · billing · etc.)]
+
+  user -- HTTPS --> web
+  web -- "Bearer JWT" --> api
+  web -- "redirect to hosted login" --> kc
+  api -- JWKS verify --> kc
+  api -- SQL --> db
+  api -- pub/sub --> bus
+  api -- "cache (optional)" --> cache
+  api -- "ACL HTTP client" --> legacy
+  bus -- events --> legacy
