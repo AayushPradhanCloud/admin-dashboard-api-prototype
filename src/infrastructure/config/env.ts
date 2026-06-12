@@ -72,6 +72,13 @@ const EnvSchema = z.object({
 
   // Feature flags
   FEATURE_FLAGS_OVERRIDES: z.string().default(''),
+
+  // NATS
+  NATS_URL: z.string().default('nats://localhost:4222'),
+  NATS_STREAM: z.string().default('ENROLLMENTS'),
+  NATS_DURABLE: z.string().default('admin-dashboard'),
+  NATS_INBOUND_SUBJECT: z.string().default('enrollment.member.enrolled'),
+  NATS_OUTBOUND_SUBJECT: z.string().default('enrollment.member.updated'),
 });
 
 export type AppEnv = z.infer<typeof EnvSchema>;
