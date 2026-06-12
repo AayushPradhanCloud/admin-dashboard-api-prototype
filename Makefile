@@ -6,7 +6,7 @@ help: ## Show this help
 install: ## Install dependencies
 	pnpm install
 
-dev: ## Start the full local stack (Postgres, Redis, API) with hot reload — Keycloak is external
+dev: ## Start the full local stack (Postgres, Redis, API) with hot reload
 	docker compose up -d postgres redis
 	@echo "Waiting for Postgres…" && sleep 3
 	pnpm prisma:generate && pnpm prisma:deploy

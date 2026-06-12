@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 
 import { StringCodec } from 'nats';
@@ -35,7 +35,7 @@ interface SubmittedData {
  * See benefit-store-api/NATS_EVENT_CONTRACT.md.
  */
 @Injectable()
-export class EnrollmentConsumer implements OnModuleInit {
+export class EnrollmentConsumer implements OnApplicationBootstrap {
   private readonly logger = new Logger(EnrollmentConsumer.name);
   private readonly sc = StringCodec();
 
@@ -44,7 +44,8 @@ export class EnrollmentConsumer implements OnModuleInit {
     private readonly commandBus: CommandBus,
   ) {}
 
-  async onModuleInit(): Promise<void> {
+  // Runs after every module's onModuleInit has completed, so NatsClient is guaranteed connected.
+  async onApplicationBootstrap(): Promise<void> {
     const env = loadEnv();
     const js = this.natsClient.jetstream();
 

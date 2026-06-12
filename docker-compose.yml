@@ -1,9 +1,6 @@
 # Local development stack.
 # Usage:  make dev     (recommended)  /  docker compose up -d
 #
-# Keycloak is NOT included here — point KEYCLOAK_* env vars at your hosted instance.
-# Set them in a .env file (see .env.example); this compose file reads them automatically.
-#
 # Services exposed:
 #   api       http://localhost:3000  (docs at /docs)
 #   postgres  localhost:5432         (nest/nest)
@@ -14,13 +11,13 @@ services:
     image: postgres:16-alpine
     container_name: nest_postgres
     environment:
-      POSTGRES_USER: nest
-      POSTGRES_PASSWORD: nest
-      POSTGRES_DB: nest
-    ports: ['5432:5432']
+      POSTGRES_USER: admin_dashboard
+      POSTGRES_PASSWORD: admin_dashboard
+      POSTGRES_DB: admin_dashboard
+    ports: ['5435:5432']
     volumes: ['pg_data:/var/lib/postgresql/data']
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U nest']
+      test: ['CMD-SHELL', 'pg_isready -U admin_dashboard']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -39,14 +36,7 @@ services:
       postgres: { condition: service_healthy }
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://nest:nest@postgres:5432/nest?schema=public
-      # Keycloak — loaded from .env file; override here only for docker-specific networking
-      KEYCLOAK_BASE_URL: ${KEYCLOAK_BASE_URL}
-      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
-      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
-      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
-      KEYCLOAK_JWKS_URL: ${KEYCLOAK_JWKS_URL}
-      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER}
+      DATABASE_URL: postgresql://admin_dashboard:admin_dashboard@postgres:5432/admin_dashboard?schema=public
       REDIS_URL: redis://redis:6379
       CORS_ALLOWED_ORIGINS: http://localhost:5173
     ports: ['3000:3000']

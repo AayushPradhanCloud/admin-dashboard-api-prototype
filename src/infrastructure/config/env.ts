@@ -9,7 +9,7 @@ function loadEnvFiles(): void {
   for (const file of envFiles) {
     const path = resolve(process.cwd(), file);
     if (existsSync(path)) {
-      loadDotenv({ path, override: false, quiet: true });
+      loadDotenv({ path, override: true, quiet: true });
     }
   }
 }
@@ -24,20 +24,12 @@ const EnvSchema = z.object({
   // App
   NODE_ENV: z.enum(['development', 'test', 'staging', 'production']).default('development'),
   SERVICE_NAME: z.string().default('nest-api'),
-  APP_PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  APP_PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   API_PREFIX: z.string().default('v1'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 
   // Database
   DATABASE_URL: z.string().url(),
-
-  // Keycloak
-  KEYCLOAK_BASE_URL: z.string().url(),
-  KEYCLOAK_REALM: z.string().min(1),
-  KEYCLOAK_CLIENT_ID: z.string().min(1),
-  KEYCLOAK_CLIENT_SECRET: z.string().min(1),
-  KEYCLOAK_JWKS_URL: z.string().url(),
-  KEYCLOAK_ISSUER: z.string().url(),
 
   // Redis (optional)
   REDIS_URL: z.string().url().optional(),
