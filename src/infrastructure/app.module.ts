@@ -13,6 +13,7 @@ import { ConfigModule } from '~/infrastructure/config/config.module';
 import { loadEnv } from '~/infrastructure/config/env';
 import { AllExceptionsFilter } from '~/infrastructure/filters/all-exceptions.filter';
 import { HealthController } from '~/infrastructure/health/health.controller';
+import { EnrollmentModule } from '~/infrastructure/modules/enrollment.module';
 import { ExampleModule } from '~/infrastructure/modules/example.module';
 
 const env = loadEnv();
@@ -38,6 +39,7 @@ const env = loadEnv();
     ThrottlerModule.forRoot([{ ttl: env.THROTTLE_TTL * 1000, limit: env.THROTTLE_LIMIT }]),
     PrismaModule,
     ExampleModule,
+    EnrollmentModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -1,0 +1,20 @@
+model Enrollment {
+  id            String    @id @default(uuid()) @db.Uuid
+  memberId      String    @map("member_id")
+  planId        String    @map("plan_id")
+  status        String
+  effectiveDate DateTime  @map("effective_date")
+  source        String?
+
+  // Audit + soft delete (populated by Prisma client extension; see PrismaService).
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  createdBy   String?   @map("created_by")
+  updatedBy   String?   @map("updated_by")
+
+  @@unique([memberId, planId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("enrollments")
+}
