@@ -19,15 +19,23 @@ export class ListEnrollmentsQuery implements IQuery {
 /**
  *
  */
+export interface EnrollmentView {
+  id: string;
+  enrollmentId: string;
+  planId: string;
+  applicantId: string | null;
+  status: string;
+  referenceNumber: string | null;
+  initiatedAt: string | null;
+  submittedAt: string | null;
+  source: string | null;
+}
+
+/**
+ *
+ */
 export interface ListEnrollmentsResult {
-  items: {
-    id: string;
-    memberId: string;
-    planId: string;
-    status: string;
-    effectiveDate: string;
-    source: string | null;
-  }[];
+  items: EnrollmentView[];
   total: number;
   page: number;
   pageSize: number;
@@ -55,10 +63,13 @@ export class ListEnrollmentsQueryHandler implements IQueryHandler<ListEnrollment
     return {
       items: result.items.map((r) => ({
         id: r.id,
-        memberId: r.memberId,
+        enrollmentId: r.enrollmentId,
         planId: r.planId,
+        applicantId: r.applicantId,
         status: r.status,
-        effectiveDate: r.effectiveDate.toISOString(),
+        referenceNumber: r.referenceNumber,
+        initiatedAt: r.initiatedAt ? r.initiatedAt.toISOString() : null,
+        submittedAt: r.submittedAt ? r.submittedAt.toISOString() : null,
         source: r.source,
       })),
       total: result.total,

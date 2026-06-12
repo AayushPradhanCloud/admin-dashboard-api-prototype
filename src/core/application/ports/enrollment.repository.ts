@@ -11,14 +11,14 @@ export interface PaginatedResult<T> {
 /** Outbound port for persisting and querying {@link Enrollment} aggregates. */
 export interface IEnrollmentRepository {
   /**
-   * Finds an enrollment by its identifier.
+   * Finds an enrollment by our internal id.
    */
   findById(id: string): Promise<Enrollment | null>;
 
   /**
-   * Finds an enrollment by memberId and planId.
+   * Finds an enrollment by the benefit-store `enrollmentId` (cross-service key).
    */
-  findByMemberAndPlan(memberId: string, planId: string): Promise<Enrollment | null>;
+  findByEnrollmentId(enrollmentId: string): Promise<Enrollment | null>;
 
   /**
    * Returns a paginated, optionally filtered list of enrollments.

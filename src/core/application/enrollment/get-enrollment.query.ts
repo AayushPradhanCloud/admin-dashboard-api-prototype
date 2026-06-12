@@ -4,6 +4,8 @@ import { QueryHandler, type IQuery, type IQueryHandler } from '@nestjs/cqrs';
 
 import { ENROLLMENT_REPOSITORY, type IEnrollmentRepository } from '~/core/application/ports/enrollment.repository';
 
+import type { EnrollmentView } from './list-enrollments.query';
+
 /**
  *
  */
@@ -11,17 +13,7 @@ export class GetEnrollmentQuery implements IQuery {
   constructor(public readonly id: string) {}
 }
 
-/**
- *
- */
-export interface GetEnrollmentResult {
-  id: string;
-  memberId: string;
-  planId: string;
-  status: string;
-  effectiveDate: string;
-  source: string | null;
-}
+export type GetEnrollmentResult = EnrollmentView;
 
 /**
  *
@@ -42,10 +34,13 @@ export class GetEnrollmentQueryHandler implements IQueryHandler<GetEnrollmentQue
 
     return {
       id: enrollment.id,
-      memberId: enrollment.memberId,
+      enrollmentId: enrollment.enrollmentId,
       planId: enrollment.planId,
+      applicantId: enrollment.applicantId,
       status: enrollment.status,
-      effectiveDate: enrollment.effectiveDate.toISOString(),
+      referenceNumber: enrollment.referenceNumber,
+      initiatedAt: enrollment.initiatedAt ? enrollment.initiatedAt.toISOString() : null,
+      submittedAt: enrollment.submittedAt ? enrollment.submittedAt.toISOString() : null,
       source: enrollment.source,
     };
   }

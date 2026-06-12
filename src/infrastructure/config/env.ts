@@ -73,12 +73,18 @@ const EnvSchema = z.object({
   // Feature flags
   FEATURE_FLAGS_OVERRIDES: z.string().default(''),
 
-  // NATS
+  // NATS — aligned to benefit-store-api/NATS_EVENT_CONTRACT.md
   NATS_URL: z.string().default('nats://localhost:4222'),
-  NATS_STREAM: z.string().default('ENROLLMENTS'),
+  NATS_STREAM: z.string().default('NUERA_ENROLLMENT'),
   NATS_DURABLE: z.string().default('admin-dashboard'),
-  NATS_INBOUND_SUBJECT: z.string().default('enrollment.member.enrolled'),
-  NATS_OUTBOUND_SUBJECT: z.string().default('enrollment.member.updated'),
+  // Stream wildcard the dashboard subscribes to (captures every enrollment.application.* event).
+  NATS_FILTER_SUBJECT: z.string().default('enrollment.application.*'),
+  // Inbound subjects we project into our DB.
+  NATS_SUBJECT_INITIATED: z.string().default('enrollment.application.initiated'),
+  NATS_SUBJECT_SUBMITTED: z.string().default('enrollment.application.submitted'),
+  // Outbound subjects we publish back to the peer (mirror the event types).
+  NATS_SUBJECT_DOCUMENT_RECEIVED: z.string().default('enrollment.application.document-received'),
+  NATS_SUBJECT_SUPPORT_REQUESTED: z.string().default('enrollment.application.support-requested'),
 });
 
 export type AppEnv = z.infer<typeof EnvSchema>;

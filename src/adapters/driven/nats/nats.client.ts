@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 
-import { connect, NatsConnection, JetStreamClient, JetStreamManager } from 'nats';
+import { connect, NatsConnection, JetStreamClient, JetStreamManager, AckPolicy, DeliverPolicy, nanos } from 'nats';
 
 // eslint-disable-next-line boundaries/element-types
 import { loadEnv } from '~/infrastructure/config/env';
@@ -22,7 +22,8 @@ export class NatsClient implements OnModuleInit, OnModuleDestroy {
       this.jsm = await this.nc.jetstreamManager();
       this.js = this.nc.jetstream();
 
-      // Ensure the stream exists
+      // Ensure the stream exists. In a real deployment the benefit-store peer owns
+      // NUERA_ENROLLMENT; for local dev we create it if missing so a single broker works.
       const streams = await this.jsm.streams.list().next();
       const streamExists = streams.find((s) => s.config.name === env.NATS_STREAM);
 
@@ -30,7 +31,23 @@ export class NatsClient implements OnModuleInit, OnModuleDestroy {
         this.logger.log(`Creating JetStream stream ${env.NATS_STREAM}...`);
         await this.jsm.streams.add({
           name: env.NATS_STREAM,
-          subjects: ['enrollment.*.>'], // Capture enrollment subjects
+          subjects: ['enrollment.application.*'],
+        });
+      }
+
+      // Ensure our durable consumer exists (filters the whole enrollment.application.* space;
+      // the message loop ignores subjects it does not care about).
+      try {
+        await this.jsm.consumers.info(env.NATS_STREAM, env.NATS_DURABLE);
+      } catch {
+        this.logger.log(`Creating durable consumer ${env.NATS_DURABLE} on ${env.NATS_STREAM}...`);
+        await this.jsm.consumers.add(env.NATS_STREAM, {
+          durable_name: env.NATS_DURABLE,
+          ack_policy: AckPolicy.Explicit,
+          deliver_policy: DeliverPolicy.All,
+          filter_subject: env.NATS_FILTER_SUBJECT,
+          max_deliver: 5,
+          ack_wait: nanos(30_000),
         });
       }
     } catch (error) {

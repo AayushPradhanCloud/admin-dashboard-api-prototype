@@ -7,10 +7,13 @@ import { PrismaService } from './prisma.service';
 
 interface EnrollmentRow {
   id: string;
-  memberId: string;
+  enrollmentId: string;
   planId: string;
+  applicantId: string | null;
   status: string;
-  effectiveDate: Date;
+  referenceNumber: string | null;
+  initiatedAt: Date | null;
+  submittedAt: Date | null;
   source: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -30,11 +33,11 @@ export class PrismaEnrollmentRepository implements IEnrollmentRepository {
     return row ? this.toDomain(row) : null;
   }
 
-  async findByMemberAndPlan(memberId: string, planId: string): Promise<Enrollment | null> {
+  async findByEnrollmentId(enrollmentId: string): Promise<Enrollment | null> {
     const row = await (
       this.prisma as unknown as { enrollment: { findFirst: (a: unknown) => Promise<EnrollmentRow | null> } }
     ).enrollment.findFirst({
-      where: { memberId, planId, deletedAt: null },
+      where: { enrollmentId, deletedAt: null },
     });
     return row ? this.toDomain(row) : null;
   }
@@ -51,8 +54,10 @@ export class PrismaEnrollmentRepository implements IEnrollmentRepository {
       ...(params.search
         ? {
             OR: [
-              { memberId: { contains: params.search, mode: 'insensitive' as const } },
+              { enrollmentId: { contains: params.search, mode: 'insensitive' as const } },
               { planId: { contains: params.search, mode: 'insensitive' as const } },
+              { applicantId: { contains: params.search, mode: 'insensitive' as const } },
+              { referenceNumber: { contains: params.search, mode: 'insensitive' as const } },
             ],
           }
         : {}),
@@ -85,20 +90,27 @@ export class PrismaEnrollmentRepository implements IEnrollmentRepository {
     };
 
     await client.enrollment.upsert({
-      where: { id: enrollment.id },
+      where: { enrollmentId: enrollment.enrollmentId },
       create: {
         id: enrollment.id,
-        memberId: enrollment.memberId,
+        enrollmentId: enrollment.enrollmentId,
         planId: enrollment.planId,
+        applicantId: enrollment.applicantId,
         status: enrollment.status,
-        effectiveDate: enrollment.effectiveDate,
+        referenceNumber: enrollment.referenceNumber,
+        initiatedAt: enrollment.initiatedAt,
+        submittedAt: enrollment.submittedAt,
         source: enrollment.source,
         createdAt: enrollment.createdAt,
         updatedAt: enrollment.updatedAt,
       },
       update: {
+        planId: enrollment.planId,
+        applicantId: enrollment.applicantId,
         status: enrollment.status,
-        effectiveDate: enrollment.effectiveDate,
+        referenceNumber: enrollment.referenceNumber,
+        initiatedAt: enrollment.initiatedAt,
+        submittedAt: enrollment.submittedAt,
         updatedAt: enrollment.updatedAt,
       },
     });
@@ -107,10 +119,13 @@ export class PrismaEnrollmentRepository implements IEnrollmentRepository {
   private toDomain(row: EnrollmentRow): Enrollment {
     return Enrollment.rehydrate({
       id: row.id,
-      memberId: row.memberId,
+      enrollmentId: row.enrollmentId,
       planId: row.planId,
+      applicantId: row.applicantId,
       status: row.status,
-      effectiveDate: row.effectiveDate,
+      referenceNumber: row.referenceNumber,
+      initiatedAt: row.initiatedAt,
+      submittedAt: row.submittedAt,
       source: row.source,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,

@@ -1,26 +1,30 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { Type } from 'class-transformer';
-import { IsDateString, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 /**
- *
+ * Body for `POST /enrollments/:id/documents` — records a received document and
+ * publishes `enrollment.application.document-received` back to the peer.
  */
-export class UpdateEnrollmentDto {
-  @ApiPropertyOptional({ example: 'plan-123' })
-  @IsOptional()
+export class RequestDocumentDto {
+  @ApiProperty({ example: 'proof-of-address' })
   @IsString()
-  planId?: string;
+  @MinLength(1)
+  @MaxLength(120)
+  documentType!: string;
+}
 
-  @ApiPropertyOptional({ example: 'active' })
-  @IsOptional()
+/**
+ * Body for `POST /enrollments/:id/support-requests` — escalates and publishes
+ * `enrollment.application.support-requested` back to the peer.
+ */
+export class RequestSupportDto {
+  @ApiProperty({ example: 'Applicant cannot complete identity verification.' })
   @IsString()
-  status?: string;
-
-  @ApiPropertyOptional({ example: '2025-01-01T00:00:00.000Z' })
-  @IsOptional()
-  @IsDateString()
-  effectiveDate?: string;
+  @MinLength(1)
+  @MaxLength(1000)
+  message!: string;
 }
 
 /**
@@ -42,14 +46,17 @@ export class ListEnrollmentsQueryDto {
   @Max(100)
   pageSize?: number = 20;
 
-  @ApiPropertyOptional({ example: 'member-123' })
+  @ApiPropertyOptional({
+    example: 'enr-123',
+    description: 'Matches enrollmentId, planId, applicantId or referenceNumber',
+  })
   @IsOptional()
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ example: 'active' })
+  @ApiPropertyOptional({ example: 'SUBMITTED', enum: ['INITIATED', 'SUBMITTED'] })
   @IsOptional()
-  @IsString()
+  @IsIn(['INITIATED', 'SUBMITTED'])
   status?: string;
 }
 
@@ -58,9 +65,12 @@ export class ListEnrollmentsQueryDto {
  */
 export class EnrollmentResponseDto {
   @ApiProperty() id!: string;
-  @ApiProperty() memberId!: string;
+  @ApiProperty() enrollmentId!: string;
   @ApiProperty() planId!: string;
-  @ApiProperty() status!: string;
-  @ApiProperty() effectiveDate!: string;
+  @ApiProperty({ nullable: true }) applicantId!: string | null;
+  @ApiProperty({ enum: ['INITIATED', 'SUBMITTED'] }) status!: string;
+  @ApiProperty({ nullable: true }) referenceNumber!: string | null;
+  @ApiProperty({ nullable: true }) initiatedAt!: string | null;
+  @ApiProperty({ nullable: true }) submittedAt!: string | null;
   @ApiProperty({ nullable: true }) source!: string | null;
 }
